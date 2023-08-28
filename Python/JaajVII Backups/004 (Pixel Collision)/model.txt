@@ -1,0 +1,171 @@
+--> file for game info -> info.py
+  -> window size variable -> window_size
+    -> set x to 800
+    -> set y to 600
+  -> window name variable -> window_name
+  -> clear background color variable -> bg_color
+    -> set to #1d2636
+  -> framerate variable -> framerate
+  -> base key dict -> keys
+    -> items:
+      -> "K_LEFT"
+      -> "K_RIGHT"
+  -> import image method -> import_image
+    --> require:
+      -> image path
+
+--> file for main game loop -> main.py
+  -> start pygame
+  -> set display name to info.window_name
+  -> clock variable -> clock
+  -> window variable -> screen
+    -> set window size to info.window_size
+  -> set loop
+    -> set variable to check if there is any key pressed -> pressed_keys
+      -> set to False
+    -> check for every key
+      -> if key is pressed
+        -> set pressed_keys to true
+    -> get events
+      -> if window close button is clicked
+        -> end pygame
+        -> end program
+      -> if event type is key pressed
+        -> for every key in info.keys.keys()
+          -> if key label is equal to event key str
+            -> set key to True
+      -> if event type is key released
+        -> for every key in info.keys.keys()
+          -> if key label is equal to event key str
+            -> set key to False
+    -> clear screen to info.bg_color
+    -> call game instance draw method
+    -> update display
+    -> set clock to tick by info.framerate
+    -> repeat
+
+--> file for game instance class -> game_instance.py
+  --> game instance class -> Game
+    -> inicialization method -> __init__
+      -> object dict variable set -> self.obj_dict
+      -> default render surface -> self.render_surface
+      -> collision list -> self.coll_list
+
+    -> add objects method -> add_object
+      -> add object to self.obj_dict
+        -> obj id as key
+      -> call object start method
+
+    -> update objects method -> update
+      -> check for collisions
+      -> for every object in self.obj_dict
+        -> call update method
+
+    -> collision check method -> check_all_collisions
+      -> for every main_object in self.obj_dict
+        -> for every collision in coll_list
+          -> if id for any of the objects equals main_object.id
+            -> if main_object has collisions disabled
+              -> call collision exit
+            -> else
+              -> if objects still collide
+                -> update collision points
+                -> call collision stay in both objects
+              -> else
+                -> call collision exit in both objects
+
+
+        -> for every object in self.obj_dict
+          -> if both objects have collisions enabled
+            -> if objects rects border intersect
+              -> if theres no collision in collision list
+                -> create Collision
+                -> call get collision in both objects
+
+    -> check for collision between 2 objs -> check_collision
+      --> require:
+        -> object 1 -> obj_1
+        -> object 2 -> obj_2
+      -> create rects for both objects
+      -> return if rects intersect
+
+    -> render objects method -> render
+      -> for every object in self.obj_dict
+        -> call render method
+
+--> file for entity handling -> entity.py
+  --> entity base class -> Entity
+    --> inherit:
+      -> ABC
+    -> inicialization method -> __init__
+      --> require:
+        -> id -> id
+        -> position -> pos
+        -> size -> size
+        -> render surface -> surface
+        -> collision enabled bool -> coll_enabled
+        -> ignore colision by id list -> coll_ignore
+      -> self.id as id
+      -> self.pos as pos
+      -> self.size as size
+      -> self.surface as surface
+      -> self.coll_enabled as coll_enabled
+      -> self.coll_ignore as coll_ignore
+
+    -> abstract start method -> start
+    -> abstract update method -> update
+    -> abstract render method -> render
+    -> abstract get collision method -> get_collision
+      -> require:
+        -> collided object instance -> c_obj
+        -> collision position -> c_pos
+    -> abstract collision stay method -> collision_stay
+      -> require:
+        -> collided object instance -> c_obj
+        -> collision position -> c_pos
+    -> abstract collision exit method -> collision_exit
+      -> require:
+        -> collided object instance -> c_obj
+        -> collision position -> c_pos
+
+    -> basic rect render method -> render_base_rect
+      -> require:
+        -> color
+      -> create rect variable -> rect
+        -> set position to self.pos
+        -> set size to self.size
+        -> draw rect
+          -> arguments:
+            -> surface: self.surface
+            -> color: color
+            -> rect: rect
+
+
+--> file for player behaviour
+  --> player class -> Player
+    --> inherit:
+      -> entity
+    -> start
+      -> set self.add to 1
+
+    -> update
+        -> set new_pos to self.pos.x
+        -> if left key is pressed
+          -> set new_pos to self.add - self.pos.x
+        -> if right key is pressed
+          -> set new_pos to self.add + self.pos.x
+        -> if new_pos is > 0 and < info.window_size:
+          -> set self.pos.x to new_pos
+
+    -> render
+      -> call self.render_base_rect
+        -> arguments:
+          -> color: #32db5d
+
+--> file for collision handling -> collision.py
+  --> collision log class -> Collision
+    -> inicialization method -> __init__
+      --> require:
+        -> object 1 id -> id_1
+        -> object 2 id -> id_2
+        -> collision position -> pos
